@@ -1,0 +1,1 @@
+# BSCOE-Class-Support-Discord-Bot
