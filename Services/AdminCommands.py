@@ -1,4 +1,7 @@
+import os
 import discord
+import json
+import asyncio
 from discord.utils import get
 
 from discord.ext import commands
@@ -7,23 +10,40 @@ class AdminCommands(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
+	#Change Command Prefix
+	@commands.command()
+	async def changeprefix(self, ctx, prefix):
+		with open("prefixes.json", "r") as f:
+			prefixes = json.load(f)
+
+		prefixes[str(ctx.guild.id)] = prefix
+
+		with open("prefixes.json", "w") as f:
+			json.dump(prefixes, f, indent=4)
+		await ctx.channel.send(f"Commands prefix has been changed to {prefix}")
+		print(f"Commands prefix has been changed to {prefix}!")
+
 	#Kick command
 	@commands.command()
 	async def kick(self, ctx, member : discord.Member, *, reason=None):
 		if ctx.message.author.top_role.permissions.administrator:
 			await member.kick(reason=reason)
-			await ctx.channel.send(f"Kicked {member.mention}\nReason: {reason}")
+			await ctx.channel.send(f"Kicked {member.mention}\n\tReason: {reason}")
+			print(f"Kicked {member}\n\tReason: {reason}!")
 		else:
 			await ctx.channel.send(f"Only admins can kick members!")
+			print(f"A member tried to kick another member!")
 
 	#Ban command
 	@commands.command()
 	async def ban(self, ctx, member : discord.Member, *, reason=None):
 		if ctx.message.author.top_role.permissions.administrator:
 			await member.ban(reason=reason)
-			await ctx.channel.send(f"Banned {member.mention}\nReason: {reason}")
+			await ctx.channel.send(f"Banned {member.mention}\n\tReason: {reason}")
+			print(f"Banned {member}\n\tReason: {reason}!")
 		else:
 			await ctx.channel.send(f"Only admins can ban members!")
+			print(f"A member tried to ban another member!")
 
 	#Unban command
 	@commands.command()
@@ -38,12 +58,15 @@ class AdminCommands(commands.Cog):
 					if (user.name + "#" + user.discriminator) == member:
 						await ctx.guild.unban(user)
 						await ctx.channel.send(f"Unbanned {user.mention}")
+						print(f"Unbanned {user}!")
 						return
 			else:
 				await ctx.channel.send(f"Nothing to unban!")
+				print(f"Banned list is empty!")
 
 		else:
 			await ctx.channel.send(f"Only admins can unban members!")
+			print(f"A member tried to unban a member!")
 
 	#Show list of banned members
 	@commands.command()
@@ -58,10 +81,13 @@ class AdminCommands(commands.Cog):
 					return_list += f"\n{user.name}#{user.discriminator}"
 
 				await ctx.channel.send(f"Banned Members:{return_list}")
+				print(f"Banned Members:{return_list}")
 			else:
 				await ctx.channel.send(f"No Banned Members!")
+				print(f"Banned List is empty!")
 		else:
 			await ctx.channel.send(f"Only admins can see banned members!")
+			print(f"A member tried to see the ban list!")
 
 	#Purge command
 	@commands.command()
@@ -70,6 +96,9 @@ class AdminCommands(commands.Cog):
 			if amount >= 0:
 				amount += 1
 				await ctx.channel.purge(limit=amount)
+		else:
+			await ctx.channel.purge(limit=1)
+
 
 def setup(bot):
 	bot.add_cog(AdminCommands(bot))
