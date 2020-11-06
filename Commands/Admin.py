@@ -1,18 +1,17 @@
-import os
-import discord
 import json
 import asyncio
+import discord
 from discord.utils import get
-
 from discord.ext import commands
 
-class AdminCommands(commands.Cog):
+class Admin(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
 	#Change Command Prefix
 	@commands.command()
 	async def changeprefix(self, ctx, prefix):
+		#Add prefix limiter
 		with open("prefixes.json", "r") as f:
 			prefixes = json.load(f)
 
@@ -92,13 +91,16 @@ class AdminCommands(commands.Cog):
 	#Purge command
 	@commands.command()
 	async def clear(self, ctx, amount=0):
-		if ctx.message.author.top_role.permissions.administrator:
-			if amount >= 0:
-				amount += 1
-				await ctx.channel.purge(limit=amount)
+		if ctx.message.author.top_role.permissions.administrator and amount >= 0:
+			amount += 1
+			await ctx.channel.purge(limit=amount)
+			if amount == 2:
+				print(f"{amount} message has been cleared in {ctx.channel}")
+			elif amount > 2:
+				print(f"{amount} messages have been cleared in {ctx.channel}")
 		else:
 			await ctx.channel.purge(limit=1)
 
 
 def setup(bot):
-	bot.add_cog(AdminCommands(bot))
+	bot.add_cog(Admin(bot))
