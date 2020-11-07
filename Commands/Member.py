@@ -50,6 +50,9 @@ class Member(commands.Cog):
 			#try/except if channel does not exist
 			for cha in chosen_channel:
 				bot_channel = get(self.bot.get_all_channels(), name=cha)
+				print(bot_channel)
+				bot_channel = ctx.guild.get_channel(bot_channel.id)
+				print(bot_channel)
 				if bot_channel:
 					await bot_channel.send(f"{message}")
 					print(f"An announcement has been sent by {ctx.message.author}!")

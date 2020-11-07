@@ -1,7 +1,6 @@
 import json
 import asyncio
 import discord
-from discord.utils import get
 from discord.ext import commands
 
 class Admin(commands.Cog):
@@ -51,14 +50,18 @@ class Admin(commands.Cog):
 			banned_list = await ctx.guild.bans()
 
 			if len(banned_list) != 0:
-				for banned_member in banned_list:
-					user = banned_member.user
+				if "#" not in member:
+					await ctx.channel.send("Member name not in correct format. Should be in name#discriminator format!")
+					print(f"Member name format incorrect!")
+				else:
+					for banned_member in banned_list:
+						user = banned_member.user
 
-					if (user.name + "#" + user.discriminator) == member:
-						await ctx.guild.unban(user)
-						await ctx.channel.send(f"Unbanned {user.mention}")
-						print(f"Unbanned {user}!")
-						return
+						if (user.name + "#" + user.discriminator) == member:
+							await ctx.guild.unban(user)
+							await ctx.channel.send(f"Unbanned {user.mention}")
+							print(f"Unbanned {user}!")
+							return
 			else:
 				await ctx.channel.send(f"Nothing to unban!")
 				print(f"Banned list is empty!")
