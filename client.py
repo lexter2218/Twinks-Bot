@@ -26,12 +26,13 @@ bot_settings = {"main channel":"owner-test-channel", "announce":"announcements",
 
 @bot.event
 async def on_ready():
-	await bot.change_presence(status=discord.Status.online, activity=discord.Game("Supporting!"))
-	bot_channel = get(bot.get_all_channels(), name=bot_settings["main channel"])
+	await bot.change_presence(status=discord.Status.offline)
+	#await bot.change_presence(status=discord.Status.offline, activity=discord.Game("Supporting!"))
+	#bot_channel = get(bot.get_all_channels(), name=bot_settings["main channel"])
+	#await bot_channel.send("Good day, I'm online again!")
+	#bot_channel = get(bot.get_all_channels(), name=bot_settings["general"])
+	#await bot_channel.send("Good day, I'm Online again!")
 	print("BSCoE Class Support Bot is ready!")
-	await bot_channel.send("Good day, I'm online again!")
-	bot_channel = get(bot.get_all_channels(), name=bot_settings["general"])
-	await bot_channel.send("Good day, I'm Online again!")
 
 @bot.event
 async def on_member_join(member):
@@ -79,4 +80,13 @@ async def on_command_error(ctx, error):
 		await ctx.channel.send(f"Argument not complete!")
 	elif isinstance(error, commands.MemberNotFound):
 		await ctx.channel.send(f"Member not found!")
+	elif isinstance(error, commands.MissingPermissions):
+		#Checks if the command is in cog Admin
+		if ctx.invoked_with in [str(each_command.name) for each_command in bot.commands if str(each_command.cog_name) == "Admin"]:
+			if ctx.invoked_with == "clear":
+				await ctx.channel.purge(limit=1)
+			await ctx.channel.send(f"You are not an admin!")
+	elif isinstance(error, commands.MissingRole):
+		await ctx.channel.send(f"You are not a Moderator!")
+
 	print(error)
