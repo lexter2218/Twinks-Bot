@@ -65,7 +65,7 @@ class Member(commands.Cog):
 			#If word has "<@!" as prefix and ">" as suffix, this means that it might be a member
 			if each_member[:3] == "<@!" and each_member[-1] == ">":
 				#Checks if the id(word excluded the "<@!" as prefix and ">" as suffix) is true
-				found_member = member_check(ctx, member_name_id=each_member)
+				found_member = member_check(ctx, member_id=each_member, bot=self.bot)
 				if found_member:
 					recipient_members.append(found_member)
 				else:

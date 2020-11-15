@@ -35,7 +35,7 @@ class Help(commands.Cog):
 			#If word has "--" prefix or has "<@!" as prefix and ">" as suffix, this means that it might be a channel or member
 			if recipient[:2] == "--" or ((recipient[:3] == "<@!" or recipient[:2] == "<#") and recipient[-1] == ">"):
 				#Checks if recipient is member or channel of guild
-				recipient_is_member = member_check(ctx, member_name_id=recipient)
+				recipient_is_member = member_check(ctx, member_id=recipient, bot=self.bot)
 				recipient_is_channel = channel_check(ctx, channel_name_id=recipient)
 				if recipient_is_member:
 					recipients.append(recipient_is_member)
@@ -74,7 +74,7 @@ class Help(commands.Cog):
 				owner_commands_names.append(each_command.name)
 
 		def commands_interator(each_name, categories):
-			if categories[each_name] == member_commands or (admin_access and categories[each_name] == admin_commands) or (owner_access and categories[each_name] == owner_commands):
+			if categories[each_name] in (member_commands, admin_commands) or (owner_access and categories[each_name] == owner_commands):
 				new_name = categories[each_name][0].cog_name
 				each_name = categories[each_name]
 				new_value = []
@@ -84,8 +84,7 @@ class Help(commands.Cog):
 				new_value = "\n".join(new_value)
 				return help_embed.add_field(name=new_name + " Commands:", value=new_value, inline=False)
 			else:
-				recipient.send("Recipient is not my owner!")
-
+				return 
 		#Help Message Creator
 		categories = {"Member":member_commands, "Admin":admin_commands, "Owner":owner_commands}
 		index = 0
@@ -93,10 +92,8 @@ class Help(commands.Cog):
 			#Checks if the receiver is an owner or an admin
 			if recipient_type[index] == "U":
 				owner_access = int(recipient.id) == int(config('DISCORD_OWNER_ID'))
-				admin_access = recipient.top_role.permissions.administrator
 			else:
 				owner_access = False
-				admin_access = True
 
 			#Header of the Help Embed
 			help_embed = Embed(colour=discord.Colour.blue(), title="BSCoE Class Support Bot Help", description="Gives user the allowed commands to do based on user's role.")
@@ -106,23 +103,20 @@ class Help(commands.Cog):
 				for each_name in categories:
 					commands_interator(each_name, categories)
 			elif options in categories:
-				if categories[options] != owner_commands or (owner_access and categories[each_name] == owner_commands):
+				if categories[options] != owner_commands or (owner_access and categories[options] == owner_commands):
 					commands_interator(options, categories)
 				else:
 					await ctx.channel.send("Recipient is not my owner!")
 					continue
 			elif options.lower() in all_commands_list_names:
 				options = options.lower()
-				if options in member_commands_names:
-					new_value = member_commands[member_commands_names.index(options)]
-					pseudo_value = prefix.join(new_value.help.split("$command-prefix$"))
-					help_embed.add_field(name=options.title() + " Command:", value=pseudo_value, inline=False)
-				elif admin_access and options in admin_commands_names:
-					new_value = admin_commands[admin_commands_names.index(options)].help
-					pseudo_value = prefix.join(new_value.help.split("$command-prefix$"))
-					help_embed.add_field(name=options.title() + " Command:", value=pseudo_value, inline=False)
-				elif owner_access and options in owner_commands_names:
-					new_value = owner_commands[owner_commands_names.index(options)].help
+				if options in member_commands_names or options in admin_commands_names or (owner_access and options in owner_commands_names):
+					if options in member_commands_names:
+						new_value = member_commands[member_commands_names.index(options)]
+					elif options in admin_commands_names:
+						new_value = admin_commands[admin_commands_names.index(options)]
+					elif owner_access and options in owner_commands_names:
+						new_value = owner_commands[owner_commands_names.index(options)]
 					pseudo_value = prefix.join(new_value.help.split("$command-prefix$"))
 					help_embed.add_field(name=options.title() + " Command:", value=pseudo_value, inline=False)
 				else:

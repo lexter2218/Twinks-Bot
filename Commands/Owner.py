@@ -11,7 +11,7 @@ class Owner(commands.Cog):
 		self.bot = bot
 
 	#Closes the Bot, Only owners can do it
-	@commands.command(brief=brief_close, help=help_close, hidden=True)
+	@commands.command(brief=brief_close, help=help_close)
 	@is_owner()
 	async def close(self, ctx):
 		await ctx.channel.send(f"Goodbye for the meantime guys! BSCoE Class Support Bot is closing!")

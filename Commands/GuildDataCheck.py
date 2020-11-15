@@ -1,8 +1,8 @@
 from discord.utils import get
 
-def member_check(ctx, member_name_id):
-	if member_name_id[:3] == "<@!" and member_name_id[-1] == ">":
-		return ctx.guild.get_member(int(member_name_id[3:-1]))
+def member_check(ctx, member_id, bot):
+	if member_id[:3] == "<@!" and member_id[-1] == ">":
+		return bot.get_user(int(member_id[3:-1]))
 	else:
 		return None
 
