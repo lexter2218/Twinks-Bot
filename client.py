@@ -61,8 +61,8 @@ async def on_message(message):
 	except AttributeError:
 		return
 
-	if user_id != 773355955587907584:
-		if channel_category == "Games":
+	if channel_category == "Games":
+		if user_id != 773355955587907584:
 			game_folder = "#" + str(message.guild.id)
 			game_room_id = str(message.channel.id)
 			path = f"Games/{game_folder}/{game_room_id}.json"
@@ -129,7 +129,7 @@ async def on_message(message):
 					if message.content[0] == fetch_prefix(message.guild.id):
 						await message.channel.purge(limit=1)
 						await message.channel.send("```\nNo invoking of commands except game commands in here!```")
-					elif exists(f"Games/{game_folder}/{game_room_id}.json"):
+					elif exists(path):
 						bot_response = game_library.user_response(message, path, str(user_id))
 						if bot_response:
 							for response in bot_response:
@@ -137,8 +137,8 @@ async def on_message(message):
 				except IndexError:
 					await message.channel.purge(limit=1)
 					await message.channel.send("```\nNo invoking of commands except game commands in here!```")
-		else:
-			await bot.process_commands(message)
+	else:
+		await bot.process_commands(message)
 
 @bot.event
 async def on_command_error(ctx, error):
