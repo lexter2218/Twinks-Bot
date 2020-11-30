@@ -1,9 +1,8 @@
-import json
 import asyncio
 import discord
 from discord.ext import commands
 
-from Commands.GuildDataCheck import channel_check, member_check
+from CustomCommands import channel_check, member_check
 from Commands.DefaultCommandsInfo import *
 
 class Member(commands.Cog):
@@ -21,7 +20,7 @@ class Member(commands.Cog):
 			#If word has "--" prefix or has "<@!" as prefix and ">" as suffix, this means that it might be a channel
 			if each_channel[:2] == "--" or (each_channel[:2] == "<#" and each_channel[-1] == ">"):
 				#Checks if the name(word excluded the "--" prefix) or id(word excluded the "<@!" as prefix and ">" as suffix) is true
-				found_channel = channel_check(ctx, channel_name_id=each_channel)
+				found_channel = channel_check(guild, channel_name_id=each_channel)
 				if found_channel:
 					recipient_channels.append(found_channel)
 				else:
@@ -65,7 +64,7 @@ class Member(commands.Cog):
 			#If word has "<@!" as prefix and ">" as suffix, this means that it might be a member
 			if each_member[:3] == "<@!" and each_member[-1] == ">":
 				#Checks if the id(word excluded the "<@!" as prefix and ">" as suffix) is true
-				found_member = member_check(ctx, member_id=each_member, bot=self.bot)
+				found_member = member_check(member_id=each_member, bot=self.bot)
 				if found_member:
 					recipient_members.append(found_member)
 				else:

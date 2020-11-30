@@ -9,4 +9,5 @@ if __name__ == "__main__":
     bot.load_extension("Commands.Member")
     bot.load_extension("Commands.Owner")
     bot.load_extension("Commands.Help")
+    bot.load_extension("Games.Games")
     bot.run(token)

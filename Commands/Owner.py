@@ -15,7 +15,7 @@ class Owner(commands.Cog):
 	@is_owner()
 	async def close(self, ctx):
 		await ctx.channel.send(f"Goodbye for the meantime guys! BSCoE Class Support Bot is closing!")
-		print(f"BSCoE Class Support Bot is closing!")
+		print(f"Class Support Bot is closing!")
 
 		os._exit(1)
 

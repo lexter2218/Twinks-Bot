@@ -13,13 +13,17 @@ class Admin(commands.Cog):
 	@commands.command(brief=brief_changeprefix, help=help_changeprefix)
 	@commands.has_permissions(administrator=True)
 	async def changeprefix(self, ctx, prefix):
-		#Add prefix limiter
-		with open("prefixes.json", "r") as f:
-			prefixes = json.load(f)
+		if prefix == "--":
+			await ctx.channel.send(f"Sorry, this prefix '{prefix}' is already taken.")
+			return
 
+		#Add prefix limiter
+		with open("prefixes.json", "r+") as f:
+			prefixes = json.load(f)
+		
 		prefixes[str(ctx.guild.id)] = prefix
 
-		with open("prefixes.json", "w") as f:
+		with open("prefixes.json", "w+") as f:
 			json.dump(prefixes, f, indent=4)
 		await ctx.channel.send(f"Commands prefix has been changed to {prefix}")
 		print(f"Commands prefix has been changed to {prefix}!")
@@ -91,6 +95,19 @@ class Admin(commands.Cog):
 			print(f"{amount} message has been cleared in {ctx.channel}")
 		elif amount > 2:
 			print(f"{amount} messages have been cleared in {ctx.channel}")
+
+	#Create Channel command
+	@commands.command(hidden=True)
+	@commands.has_permissions(administrator=True)
+	async def create(self, ctx, channel_name, text_voice="t", category=None):
+		if category:
+			  category = await ctx.guild.create_category_channel(category)
+		if text_voice.lower() == "t":
+			await ctx.guild.create_text_channel("-".join(channel_name.split("_")), category=category)
+		elif text_voice.lower() == "v":
+			await ctx.guild.create_voice_channel("-".join(channel_name.split("_")), category=category)
+
+
 
 def setup(bot):
 	bot.add_cog(Admin(bot))

@@ -1,5 +1,4 @@
 import os
-import json
 import asyncio
 from decouple import config
 import discord
@@ -8,14 +7,14 @@ from discord.ext import commands
 from discord import Embed, Client, Guild
 from discord.ext.commands import Bot, CommandNotFound
 
-from Commands.GuildDataCheck import channel_check, member_check
-from Commands.DefaultCommandsInfo import brief_info, help_info
+from CustomCommands import channel_check, member_check, fetch_prefix
+from Commands.DefaultCommandsInfo import brief_help, help_help
 
 class Help(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.command(brief=brief_info, help=help_info)
+	@commands.command(brief=brief_help, help=help_help)
 	async def help(self, ctx, options="All", *, send_to=None):
 		options = options.title()
 		#Collecting all recipients
@@ -25,9 +24,7 @@ class Help(commands.Cog):
 			pseudo_recipients = ["--" + str(ctx.message.channel)]
 
 		#fetches the commmand-prefix
-		with open("prefixes.json", "r") as f:
-			prefixes = json.load(f)
-		prefix = prefixes[str(ctx.guild.id)]
+		prefix = fetch_prefix(ctx.guild.id)
 
 		#Recipient Identifier
 		recipients, recipient_type, unknown_recipient = [], [], []
@@ -35,8 +32,8 @@ class Help(commands.Cog):
 			#If word has "--" prefix or has "<@!" as prefix and ">" as suffix, this means that it might be a channel or member
 			if recipient[:2] == "--" or ((recipient[:3] == "<@!" or recipient[:2] == "<#") and recipient[-1] == ">"):
 				#Checks if recipient is member or channel of guild
-				recipient_is_member = member_check(ctx, member_id=recipient, bot=self.bot)
-				recipient_is_channel = channel_check(ctx, channel_name_id=recipient)
+				recipient_is_member = member_check(member_id=recipient, bot=self.bot)
+				recipient_is_channel = channel_check(ctx.guild, channel_name_id=recipient)
 				if recipient_is_member:
 					recipients.append(recipient_is_member)
 					recipient_type.append("U")
@@ -63,15 +60,16 @@ class Help(commands.Cog):
 		member_commands, admin_commands, owner_commands = [], [], []
 		member_commands_names, admin_commands_names, owner_commands_names = [], [], []
 		for each_command in all_commands_list:
-			if each_command.cog_name in ("Member", "Help"):
-				member_commands.append(each_command)
-				member_commands_names.append(each_command.name)
-			elif each_command.cog_name == "Admin":
-				admin_commands.append(each_command)
-				admin_commands_names.append(each_command.name)
-			elif each_command.cog_name == "Owner":
-				owner_commands.append(each_command)
-				owner_commands_names.append(each_command.name)
+			if not each_command.hidden:
+				if each_command.cog_name in ("Member", "Help"):
+					member_commands.append(each_command)
+					member_commands_names.append(each_command.name)
+				elif each_command.cog_name == "Admin":
+					admin_commands.append(each_command)
+					admin_commands_names.append(each_command.name)
+				elif each_command.cog_name == "Owner":
+					owner_commands.append(each_command)
+					owner_commands_names.append(each_command.name)
 
 		def commands_interator(each_name, categories):
 			if categories[each_name] in (member_commands, admin_commands) or (owner_access and categories[each_name] == owner_commands):
