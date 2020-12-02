@@ -10,18 +10,14 @@ from discord.ext.commands import Bot
 
 from CustomCommands import *
 
-from os.path import exists
-from os import remove
-
-
-bot = Bot(command_prefix=get_prefix, description="Class Support Bot", pm_help=True, help_command=None)
+bot = Bot(command_prefix=get_prefix, description="Twinks Bot", pm_help=True, help_command=None)
 
 bot_settings = {"main channel":"owner-test-channel", "announce":"announcements", "general":"general"}
 
 @bot.event
 async def on_ready():
-	await bot.change_presence(status=discord.Status.online, activity=discord.Game("as Support!"))
-	print("Class Support Bot is ready!")
+	await bot.change_presence(status=discord.Status.online, activity=discord.Game("twink!!"))
+	print("Twinks Bot is ready!")
 	for each_guild in bot.guilds:
 		bot_channel = get(each_guild.channels, name="owner")
 		if bot_channel:
@@ -55,90 +51,65 @@ async def on_guild_remove(guild):
 
 @bot.event
 async def on_message(message):
-	user_id = int(message.author.id)
+	#=========================Handler if a bot tried to send a command=========================
 	try:
-		channel_category = str(message.channel.category)
-	except AttributeError:
-		return
+		#=========================Making Sure that game channels exist=========================
+		if not get(message.guild.categories, name="Palaro"):
+			await message.guild.create_category("Palaro")
 
-	if channel_category == "Games":
-		if user_id != 773355955587907584:
-			game_folder = "#" + str(message.guild.id)
-			game_room_id = str(message.channel.id)
-			path = f"Games/{game_folder}/{game_room_id}.json"
+		game_room_category = get(message.guild.categories, name="Palaro")
 
-			#Checks if the user is the one who is trying to communicate with the bot in the game room
-			guild_game_data = sqlite3.connect(f"Games/#{message.guild.id}/guild_game_data.db")
-			active_rooms = guild_game_data.cursor()
-			active_rooms.execute("SELECT users_id FROM activerooms WHERE channel_id = '{}'".format(message.channel.id))
-			fetched_users_id = active_rooms.fetchall()
-			guild_game_data.commit()
-			guild_game_data.close()
-			for each_active_room in fetched_users_id:
-				if str(user_id) not in each_active_room:
-					await message.channel.purge(limit=1)
-					try:
-						await message.author.send(f"```Sorry, you are not allowed to send messages in game room {message.channel.name}.```")
-					except:
-						pass
-					else:
-						return
+		if not get(message.guild.channels, name="guess-the-number"):
+			from palaro.GuessTheNumber import GuessTheNumber
+			game_room_channel = await message.guild.create_text_channel("guess-the-number", category=game_room_category)
+			#=========================Send rules at the top of the channel=========================
+			bot_response = GuessTheNumber(message).rules
+			for response in bot_response:
+				await game_room_channel.send(f"```\n{response}```")
 
-			#Sets the game of the user
-			game_room_game_index = int(message.channel.name.split('-')[0])
-			if game_room_game_index == 1:
-				from Games.lib.GuessTheNumber import GuessTheNumber
-				game_library = GuessTheNumber()
-			#Checks the message if it has game command
-			if message.content[:2] == "--":
-				#Gets the command of the user
-				game_command = message.content.split(" ")[0][2].lower()
+		#=========================Checking the message if it is sent in categories palaro=========================
+		if message.channel.category == game_room_category:
+			#=========================Make sure that the message is not from the bot=========================
+			if message.author.id != 773355955587907584:
+				#=========================Message sent in palaro category=========================
+
+				#=========================Handler if a bot tried to send a command=========================
 				try:
-					game_command_params = message.content.lower().split(" ")[1:]
-				except:
-					game_command_params = []
-
-				#Checks the game command invoked by the user
-				if game_command == "p":
-					bot_response = game_library.start_game(game_command_params, path, str(user_id))
-					for response in bot_response:
-						await message.channel.send(response)
-				elif game_command == "h":
-					await message.channel.send(game_library.game_help)
-				elif game_command == "s":
-					pass
-				elif game_command == "q":
-					#Deletes the game room
-					await message.channel.send("```\nGoodbye!```")
-					await message.channel.category.set_permissions(message.author, read_messages=False, send_messages=False)
-					await asyncio.sleep(1)
-					await message.channel.delete()
-
-					#Erases the room from list of active rooms
-					guild_game_data = sqlite3.connect(f"Games/#{message.guild.id}/guild_game_data.db")
-					active_rooms = guild_game_data.cursor()
-					active_rooms.execute("DELETE FROM activerooms WHERE users_id = '{}'".format(user_id))
-					guild_game_data.commit()
-					guild_game_data.close()
-					if exists(path):
-						remove(path)
-				else:
-					await message.channel.send(f"```\nSorry, there is no action as {game_command}.```")
-			else:
-				try:
-					if message.content[0] == fetch_prefix(message.guild.id):
+					#=========================Checks if the message is a command=========================
+					if message.content.split()[0][0] == fetch_prefix(message.guild.id):
 						await message.channel.purge(limit=1)
-						await message.channel.send("```\nNo invoking of commands except game commands in here!```")
-					elif exists(path):
-						bot_response = game_library.user_response(message, path, str(user_id))
-						if bot_response:
-							for response in bot_response:
-								await message.channel.send(response)
+
+						#=========================Handler if a user or bot can not be DMed=========================
+						try:
+							await message.author.send(f"```\nInvoking of commands is {message.channel.name} is prohibited!```")
+						except discord.errors.HTTPException():
+							pass
+
+						return
 				except IndexError:
 					await message.channel.purge(limit=1)
-					await message.channel.send("```\nNo invoking of commands except game commands in here!```")
-	else:
-		await bot.process_commands(message)
+					return
+
+				#=========================Message will now be processed by the game=========================
+				if message.channel.name == "guess-the-number":
+					from palaro.GuessTheNumber import GuessTheNumber
+					bot_response, instant_response = GuessTheNumber(message).user_response(message)
+
+				#=========================Bot Responds to user that the game's ready=========================
+				for response in instant_response:
+					#=========================Handler if a user or bot can not be DMed=========================
+					try:
+						await response
+					except discord.errors.HTTPException():
+						pass
+				for response in bot_response:
+					await message.channel.send(f"{message.author.mention}\n```\n{response}```")
+
+		else:
+			#=========================Message not sent in palaro category=========================
+			await bot.process_commands(message)
+	except AttributeError:
+		return
 
 @bot.event
 async def on_command_error(ctx, error):
