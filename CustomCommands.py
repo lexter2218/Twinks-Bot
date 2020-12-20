@@ -30,6 +30,11 @@ def customize_prefix(guild, target_file, action):
 	with open("prefixes.json", "w+") as f:
 		json.dump(prefixes, f, indent=4)
 
+def fetch_prefix(guild_id):
+	with open("prefixes.json", "r") as f:
+		prefixes = json.load(f)
+	return prefixes[str(guild_id)]
+
 def member_check(member_id, bot):
 	if member_id[:3] == "<@!" and member_id[-1] == ">":
 		return bot.get_user(int(member_id[3:-1]))
@@ -43,8 +48,3 @@ def channel_check(guild, channel_name_id):
 		return guild.get_channel(int(channel_name_id[2:-1]))
 	else:
 		return None
-
-def fetch_prefix(guild_id):
-	with open("prefixes.json", "r") as f:
-		prefixes = json.load(f)
-	return prefixes[str(guild_id)]
