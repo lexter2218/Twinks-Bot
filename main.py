@@ -1,12 +1,27 @@
 import discord, pkgutil
+from peewee import SqliteDatabase
 from decouple import config
 from client import bot
 
+
+db = SqliteDatabase('cemit.db')
+
+def startup():
+    db.connect()    
+
+    from services.core.models import setup as core_models
+    #TODO: AUTOMATIC TABLE DETECTION
+    #TODO: Migrations
+    core_models()
+
 if __name__ == "__main__":
+    startup()
     token = config('BOT_TOKEN')
     
-    bot.load_extension("Commands.Admin")
-    bot.load_extension("Commands.Member")
-    bot.load_extension("Commands.Owner")
-    bot.load_extension("Commands.Help")
+    bot.load_extension("services.admin")
+    bot.load_extension("services.officers")
+    bot.load_extension("services.poll")
+
+    #PALARO
+    bot.load_extension("palaro.cog")
     bot.run(token)

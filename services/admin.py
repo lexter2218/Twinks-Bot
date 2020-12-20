@@ -1,35 +1,14 @@
-import json
-import asyncio
 import discord
 from discord.ext import commands
 
-from Commands.DefaultCommandsInfo import *
+#I print the outputs for troubleshooting
 
 class Admin(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	#Change Command Prefix
-	@commands.command(brief=brief_changeprefix, help=help_changeprefix)
-	@commands.has_permissions(administrator=True)
-	async def changeprefix(self, ctx, prefix):
-		if prefix == "--":
-			await ctx.channel.send(f"Sorry, this prefix '{prefix}' is already taken.")
-			return
-
-		#Add prefix limiter
-		with open("prefixes.json", "r+") as f:
-			prefixes = json.load(f)
-		
-		prefixes[str(ctx.guild.id)] = prefix
-
-		with open("prefixes.json", "w+") as f:
-			json.dump(prefixes, f, indent=4)
-		await ctx.channel.send(f"Commands prefix has been changed to {prefix}")
-		print(f"Commands prefix has been changed to {prefix}!")
-
 	#Kick command
-	@commands.command(brief=brief_kick, help=help_kick)
+	@commands.command()
 	@commands.has_permissions(administrator=True)
 	async def kick(self, ctx, member : discord.Member, *, reason=None):
 		await member.kick(reason=reason)
@@ -37,7 +16,7 @@ class Admin(commands.Cog):
 		print(f"Kicked {member}\n\tReason: {reason}!")
 
 	#Ban command
-	@commands.command(brief=brief_ban, help=help_ban)
+	@commands.command()
 	@commands.has_permissions(administrator=True)
 	async def ban(self, ctx, member : discord.Member, *, reason=None):
 		await member.ban(reason=reason)
@@ -45,7 +24,7 @@ class Admin(commands.Cog):
 		print(f"Banned {member}\n\tReason: {reason}!")
 
 	#Unban command
-	@commands.command(brief=brief_unban, help=help_unban)
+	@commands.command()
 	@commands.has_permissions(administrator=True)
 	async def unban(self, ctx, *, member):
 		banned_list = await ctx.guild.bans()
@@ -68,7 +47,7 @@ class Admin(commands.Cog):
 			print(f"Banned list is empty!")
 
 	#Show list of banned members
-	@commands.command(brief=brief_banlist, help=help_banlist)
+	@commands.command()
 	@commands.has_permissions(administrator=True)
 	async def banlist(self, ctx):
 		banned_list = await ctx.guild.bans()
@@ -86,7 +65,7 @@ class Admin(commands.Cog):
 			print(f"Banned List is empty!")
 
 	#Purge command
-	@commands.command(brief=brief_clear, help=help_clear)
+	@commands.command()
 	@commands.has_permissions(administrator=True)
 	async def clear(self, ctx, amount=0):
 		amount += 1
@@ -95,18 +74,6 @@ class Admin(commands.Cog):
 			print(f"{amount} message has been cleared in {ctx.channel}")
 		elif amount > 2:
 			print(f"{amount} messages have been cleared in {ctx.channel}")
-
-	#Create Channel command
-	@commands.command(hidden=True)
-	@commands.has_permissions(administrator=True)
-	async def create(self, ctx, channel_name, text_voice="t", category=None):
-		if category:
-			  category = await ctx.guild.create_category_channel(category)
-		if text_voice.lower() == "t":
-			await ctx.guild.create_text_channel("-".join(channel_name.split("_")), category=category)
-		elif text_voice.lower() == "v":
-			await ctx.guild.create_voice_channel("-".join(channel_name.split("_")), category=category)
-
 
 
 def setup(bot):
