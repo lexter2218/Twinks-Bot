@@ -24,6 +24,9 @@ class GameConfig(commands.Cog):
 
 	@commands.command(hidden=True)
 	async def analyze_user_response(self, message, command_prefix):
+		#==============================Channel Points==============================
+		#For every message sent by a user, add a point to a player (Message should be sent at al channels except at game channels)
+
 		#==============================Checks the message if it is a command or not==============================
 		if message.content.split()[0][0] == command_prefix:
 			#==============================Checks which command is being invoked==============================

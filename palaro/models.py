@@ -12,7 +12,6 @@ class GuessTheNumber(Model):
 	class Meta:
 		database = db
 
-
 def setup(game):
 	if game == "guess-the-number":
 		db.create_tables([GuessTheNumber])
