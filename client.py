@@ -21,9 +21,9 @@ async def on_message(message):
     #==============================Checks if user is not a bot==============================
     if not message.author.bot:
         from palaro.cog import GameConfig
-        await GameConfig(bot).analyze_user_response(GameConfig(bot), message, default_command_prefix)
+        #await GameConfig(bot).analyze_user_response(GameConfig(bot), message, default_command_prefix)
+        await GameConfig(bot).analyze_user_response(message, default_command_prefix)
            
-
 @bot.command()
 async def hello(ctx):
     member = f"<@{ctx.author.id}>"
