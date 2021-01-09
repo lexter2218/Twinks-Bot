@@ -1,1 +1,1 @@
-# BSCOE-Class-Support-Discord-Bot
+# Twinks-Bot
