@@ -3,7 +3,23 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from Commands.DefaultCommandsInfo import *
+brief_changeprefix = "$command-prefix$changeprefix [new prefix]"
+help_changeprefix = "Customize the prefix of your commands in this server.\n\n$command-prefix$changeprefix [new prefix(special characters)]\n\nNote:\n\t+ Only special characters of non-letter or non-number characters could be used as new prefix.\n\t+ Make sure that this is the only bot that will be using that command prefix or it will trigger both if they have same commands."
+
+brief_kick = "$command-prefix$kick [mention member] [reason(optional)]"
+help_kick = "Kick members.\n\n$command-prefix$kick [member] [reason(optional)]\n\nNote:\n\t+ If the reason is not stated, it will be automatically set to None.\n\t+ Members should only be in two formats: member mention or \"<@!member-id>\"\ni.e.\n\t$command-prefix$kick @ProgrammingDoctor @ManOfSteel <@!952952033535491809> Negative Attitude\n\n\tAll of the members will be kicked out of the server with the reason of Negative Attitude."
+
+brief_ban = "$command-prefix$ban [mention member] [reason(optional)]"
+help_ban = "Ban members.\n\n$command-prefix$ban [member] [reason(optional)]\n\nNote:\n\t+ If the reason is not stated, it will be automatically set to None.\n\t+ Members should only be in two formats: member mention or \"<@!member-id>\"\ni.e.\n\t$command-prefix$ban @ProgrammingDoctor @ManOfSteel <@!952952033535491809> Negative Attitude\n\n\tAll of the members will be banned from entering the server and from receiving working invitations with the reason of Negative Attitude."
+
+brief_banlist = "$command-prefix$banlist"
+help_banlist = "Sends the list of the banned members with reasons.\n\n$command-prefix$banlist"
+
+brief_unban = "$command-prefix$unban [members]"
+help_unban = "Unban members.\n\n$command-prefix$unban [members]\n\nNote:\n\t+ Members should only be in two formats: \"name\" + \"#\" + \"discriminator (four numbers after # sign)\" or \"<@!member-id>\"\ni.e.\n\t$command-prefix$ban ProgrammingDoctor#6969 ManOfSteel#7171 <@!952952033535491809>\n\n\tAll of the members will be unbanned from the server and can now receive working invitations."
+
+brief_clear = "$command-prefix$clear [amount]"
+help_clear = "Clear previous messages.\n\n$command-prefix$clear [amount]\n\nNote:\n\t+ Amount should only be positive integers."
 
 class Admin(commands.Cog):
 	def __init__(self, bot):
@@ -13,20 +29,16 @@ class Admin(commands.Cog):
 	@commands.command(brief=brief_changeprefix, help=help_changeprefix)
 	@commands.has_permissions(administrator=True)
 	async def changeprefix(self, ctx, prefix):
-		if prefix == "--":
-			await ctx.channel.send(f"Sorry, this prefix '{prefix}' is already taken.")
-			return
+		if len(prefix) == 1:
+			from Data.core import db, GuildInitialization as GUILDINIT
 
-		#Add prefix limiter
-		with open("prefixes.json", "r+") as f:
-			prefixes = json.load(f)
-		
-		prefixes[str(ctx.guild.id)] = prefix
+			guild_data = GUILDINIT.get(GUILDINIT.guild_id == ctx.guild.id)
+			guild_data.command_prefix = prefix
+			guild_data.save()
 
-		with open("prefixes.json", "w+") as f:
-			json.dump(prefixes, f, indent=4)
-		await ctx.channel.send(f"Commands prefix has been changed to {prefix}")
-		print(f"Commands prefix has been changed to {prefix}!")
+			await ctx.channel.send(f"Commands prefix has been changed to {prefix}")
+		else:
+			await ctx.channel.send(f"Command Prefix should only have one character.")
 
 	#Kick command
 	@commands.command(brief=brief_kick, help=help_kick)

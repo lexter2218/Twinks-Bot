@@ -2,8 +2,19 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from CustomCommands import channel_check, member_check
-from Commands.DefaultCommandsInfo import *
+from functions import channel_check, member_check
+
+brief_announce = "$command-prefix$announce [--channel] [message]"
+help_announce = "Sends announcements to given channels.\n\n$command-prefix$announce [channel-1] [channel-2(optional)] [message]\n\nNote:\n\t+ You could only send announcements to text channels, use message command to send a direct message to members.\n\t+ You could mention members on message part.\n\t+ Always put the desired text channel before starting the message or else it will be a part of your message.\n\t+ Channels should only be in two formats: \"--\" + \"channel-name\" or \"<#channel-id>\"\ni.e.\n\t$command-prefix$announce --general --general-2 <#952952033535491809> Help command, Hello There!\n\n\tThe message \"Help command, Hello There!\" will be sent to text channels general, general-2, and the text-channel that has the given id."
+
+brief_message = "$command-prefix$message [mention member] [message]"
+help_message = "Sends a direct message to given members.\n\n$command-prefix$announce [member-1] [member-2(optional)] [message]\n\nNote:\n\t+ You could only send direct messages to members of this guild, use announce command to send a message to text channels.\n\t+ Always put the desired members before starting the message or else it will be a part of your message.\n\t+ Members should only be in two formats: member mention or \"<@!member-id>\"\ni.e.\n\t$command-prefix$message @ProgrammingDoctor @ManOfSteel <@!952952033535491809> Help command, Hello There!\n\n\tThe message \"Help command, Hello There!\" will be sent to members ProgrammingDoctor, ManOfSteel, and the owner of given id."
+
+brief_admincheck = "$command-prefix$admincheck"
+help_admincheck = "Checks if you are an admin.\n\n$command-prefix$admincheck"
+
+brief_info = "$command-prefix$info [members/text channels]"
+help_info = "Sends the info of a user."
 
 class Member(commands.Cog):
 	def __init__(self, bot):
