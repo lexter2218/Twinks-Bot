@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from functions import fetch_prefix
 
-from Games.lib.gtn import GuessTheNumber
+from Games.library.gtn import GuessTheNumber
 from Games.models import GameDatabaseConfig
 
 from math import log, exp as euler_exponent, e as euler_num
