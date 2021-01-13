@@ -4,7 +4,8 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import is_owner
 
-from Commands.DefaultCommandsInfo import *
+brief_close = "$command-prefix$close"
+help_close = "closes the bot.\n\n$command-prefix$close"
 
 class Owner(commands.Cog):
 	def __init__(self, bot):

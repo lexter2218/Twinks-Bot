@@ -4,14 +4,8 @@ from decouple import config
 from client import bot
 
 
-db = SqliteDatabase('cemit.db')
-
 def startup():
-    db.connect()    
-
-    from services.core.models import setup as core_models
-    #TODO: AUTOMATIC TABLE DETECTION
-    #TODO: Migrations
+    from Data.core import setup as core_models
     core_models()
 
 if __name__ == "__main__":
@@ -23,6 +17,6 @@ if __name__ == "__main__":
     bot.load_extension("Commands.Owner")
     bot.load_extension("Commands.Help")
 
-    #PALARO
+    #Games
     bot.load_extension("Games.cog")
     bot.run(token)

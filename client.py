@@ -8,7 +8,7 @@ import sqlite3
 from discord.ext import commands
 from discord.ext.commands import Bot
 
-from CustomCommands import *
+from functions import *
 
 bot = Bot(command_prefix=get_prefix, description="Twinks Bot", pm_help=True, help_command=None)
 
@@ -19,9 +19,10 @@ async def on_ready():
 	await bot.change_presence(status=discord.Status.online, activity=discord.Game("twink!!"))
 	print("Twinks Bot is ready!")
 	for each_guild in bot.guilds:
-		bot_channel = get(each_guild.channels, name="owner")
-		if bot_channel:
-			await bot_channel.send("Good day, I'm Online again!")
+		if each_guild.name == "Discord Bot Test Server":
+			bot_channel = get(each_guild.channels, name="owner")
+			if bot_channel:
+				await bot_channel.send("Good day, I'm Online again!")
 
 @bot.event
 async def on_member_join(member):
@@ -39,22 +40,23 @@ async def on_member_remove(member):
 @bot.event
 async def on_guild_join(guild):
 	#Sets a default prefix that can be changed later
-	customize_prefix(guild, "prefixes.json", "add")
+	join_or_leave_guild(guild.id, "join")
 	print(f"I joined {guild}!")
 
 #Event when bot is removed from a guild
 @bot.event
 async def on_guild_remove(guild):
 	#Clears a custom prefix
-	customize_prefix(guild, "prefixes.json", "clear")
+	join_or_leave_guild(guild.id, "leave")
 	print(f"I left {guild}!")
 
 @bot.event
 async def on_message(message):
-    #==============================Checks if user is not a bot==============================
-    if not message.author.bot:
-        from palaro.cog import GameConfig
-        await GameConfig(bot).analyze_user_response(GameConfig(bot), message, default_command_prefix)
+	#==============================Checks if user is not a bot==============================
+	if not message.author.bot and len(message.content) != 0:
+		from Games.cog import GameConfig
+		#await GameConfig(bot).analyze_user_response(GameConfig(bot), message, default_command_prefix)
+		await GameConfig(bot).analyze_user_response(message)
 
 @bot.event
 async def on_command_error(ctx, error):
