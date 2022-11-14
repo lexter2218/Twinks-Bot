@@ -1,6 +1,6 @@
 from discord.utils import get
 
-from Data.core import db, GuildInitialization as GUILDINIT
+from data.core import db, GuildInit as GUILDINIT
 
 
 def join_or_leave_guild(fetched_guild_id, action):
@@ -26,7 +26,8 @@ def fetch_prefix(fetched_guild_id):
 	return result
 
 def get_prefix(bot, message):
-	return fetch_prefix(message.guild.id)
+	print(bot.command_prefix)
+	return fetch_prefix(bot.command_prefix)
 
 
 def member_check(member_id, bot):
